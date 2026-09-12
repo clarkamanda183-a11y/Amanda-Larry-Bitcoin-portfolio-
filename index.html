@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amanda & Larry Bitcoin Portfolio</title>
+<meta name="description" content="Private Bitcoin portfolio dashboard for Amanda Clark and Larry Wright.">
+<style>
+:root{--bg:#0b0f14;--card:#121923;--text:#f4f7fb;--muted:#aab5c4;--accent:#f7931a;--line:#263241;--good:#46c37b}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(180deg,#0b0f14,#0f151d);color:var(--text);line-height:1.6}
+.container{max-width:1100px;margin:auto;padding:0 22px}.nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}.brand{font-weight:800;letter-spacing:-.4px}.btc{color:var(--accent);font-size:1.3rem;margin-right:7px}.nav a{color:var(--muted);text-decoration:none;margin-left:20px}.hero{padding:70px 0 55px}.eyebrow{color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;font-size:.78rem}.hero h1{font-size:clamp(2.5rem,6vw,5rem);line-height:1.02;margin:14px 0 18px;max-width:850px;letter-spacing:-2px}.hero p{color:var(--muted);max-width:700px;font-size:1.08rem}.buttons{margin-top:28px}.btn{display:inline-block;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:700;margin-right:8px}.primary{background:var(--accent);color:#111}.secondary{border:1px solid var(--line);color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:25px 0 65px}.card{background:rgba(18,25,35,.9);border:1px solid var(--line);border-radius:16px;padding:22px}.label{color:var(--muted);font-size:.88rem}.value{font-size:1.65rem;font-weight:800;margin-top:7px}.good{color:var(--good)}
+section{padding:20px 0 55px}h2{font-size:2rem;margin-bottom:10px}.muted{color:var(--muted)}.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.person h3{margin:0 0 5px}.notice{border-left:4px solid var(--accent);background:#171c23;padding:17px 20px;border-radius:10px;color:#d9e0e8}
+table{width:100%;border-collapse:collapse}.tablewrap{overflow:auto}.tablewrap th,.tablewrap td{text-align:left;padding:14px;border-bottom:1px solid var(--line);white-space:nowrap}.tablewrap th{color:var(--muted);font-size:.85rem}
+footer{border-top:1px solid var(--line);padding:30px 0;color:var(--muted);font-size:.85rem}.small{font-size:.82rem}
+@media(max-width:750px){.nav a{display:none}.grid,.two{grid-template-columns:1fr}.hero{padding-top:45px}.hero h1{letter-spacing:-1px}}
+
+.editor{margin-top:18px}.editor h3{margin-top:0}.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:18px 0}
+.editor label{display:flex;flex-direction:column;color:var(--muted);font-size:.88rem;font-weight:700}.editor input,.editor select{margin-top:6px;padding:11px 12px;border-radius:9px;border:1px solid var(--line);background:#0b0f14;color:var(--text);font:inherit}.editor .wide{grid-column:1/-1}
+.delete-btn{background:transparent;border:0;color:#ff8b7d;font-weight:700;cursor:pointer;padding:8px}.status-good{color:var(--good)}
+@media(max-width:750px){.formgrid{grid-template-columns:1fr}.editor .wide{grid-column:auto}.tablewrap th,.tablewrap td{padding:10px}}
+</style>
+</head>
+<body>
+<header class="container nav">
+  <div class="brand"><span class="btc">₿</span>Amanda & Larry Bitcoin Portfolio</div>
+  <nav><a href="#portfolio">Portfolio</a><a href="#about">About</a><a href="#risk">Risk</a><a href="#contact">Contact</a></nav>
+</header>
+
+<main>
+<section class="container hero">
+  <div class="eyebrow">Private portfolio • Bitcoin</div>
+  <h1>A simple, transparent way to track our Bitcoin investment.</h1>
+  <p>This private portfolio is maintained by Amanda Clark and Larry Wright for personal investment tracking. Any figures shown should be based on verified transaction records—not estimates or promises.</p>
+  <div class="buttons"><a class="btn primary" href="#portfolio">View portfolio</a><a class="btn secondary" href="#contact">Ask a question</a></div>
+</section>
+
+<section id="portfolio" class="container">
+  <h2>Portfolio snapshot</h2>
+  <p class="muted">Current verified portfolio records.</p>
+  <div class="grid">
+    <div class="card"><div class="label">Total contributed</div><div class="value" id="totalContributed">$0.00</div></div>
+    <div class="card"><div class="label">Bitcoin held</div><div class="value" id="btcHeld">0.00000000 BTC</div></div>
+    <div class="card"><div class="label">Current BTC price</div><div class="value" id="btcPrice">Loading…</div></div>
+    <div class="card"><div class="label">Current portfolio value</div><div class="value" id="portfolioValue">Loading…</div></div>
+    <div class="card"><div class="label">Net performance</div><div class="value" id="netPerformance">—</div></div>
+    <div class="card"><div class="label">Return</div><div class="value" id="returnPct">—</div></div>
+  </div>
+  <div class="card tablewrap">
+    <table>
+      <thead><tr><th>Date</th><th>Transaction</th><th>BTC</th><th>Amount</th><th>Notes</th><th></th></tr></thead>
+      <tbody id="transactionBody"></tbody>
+    </table>
+  </div>
+  <div class="card editor">
+    <h3>Add transaction</h3>
+    <p class="muted small">Add purchases or sales and the dashboard recalculates automatically. Transactions are saved only in this browser.</p>
+    <div class="formgrid">
+      <label>Date<input id="txDate" type="date"></label>
+      <label>Type<select id="txType"><option value="purchase">Bitcoin purchase</option><option value="sale">Bitcoin sale</option></select></label>
+      <label>BTC amount<input id="txBtc" type="number" min="0" step="0.00000001" placeholder="0.001"></label>
+      <label>Dollar amount<input id="txAmount" type="number" min="0" step="0.01" placeholder="100"></label>
+      <label class="wide">Notes<input id="txNotes" type="text" maxlength="120" placeholder="Optional note"></label>
+    </div>
+    <button class="btn primary" id="addTx" type="button">Add transaction</button>
+    <button class="btn secondary" id="refreshPrice" type="button">Refresh BTC price</button>
+    <p id="priceStatus" class="small muted"></p>
+  </div>
+</section>
+
+<section id="about" class="container">
+  <h2>About</h2>
+  <div class="two">
+    <div class="card person"><h3>Amanda Clark</h3><p class="muted">Portfolio partner and current contributor. Amanda made the first Bitcoin purchase.</p></div>
+    <div class="card person"><h3>Larry Wright</h3><p class="muted">Portfolio partner. Larry has not contributed funds at this time.</p></div>
+  </div>
+</section>
+
+<section class="container">
+  <h2>How it works</h2>
+  <div class="card">
+    <ol class="muted">
+      <li>Contributions are documented with the date, amount, and transaction reference.</li>
+      <li>Bitcoin holdings are recorded from verifiable wallet or exchange records.</li>
+      <li>Performance is calculated from actual holdings and documented contributions.</li>
+      <li>Participants should receive clear information about fees, ownership, custody, and withdrawal arrangements before contributing funds.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="risk" class="container">
+  <h2>Risk disclosure</h2>
+  <div class="notice">
+    <strong>Bitcoin involves substantial risk.</strong> Its price can rise or fall significantly, and you may lose some or all of the money invested. This website does not promise profits or guaranteed returns and is not financial, tax, or legal advice. Before accepting money from anyone else, obtain appropriate professional advice and confirm the legal requirements that apply to your arrangement and locations.
+  </div>
+</section>
+
+<section id="contact" class="container">
+  <h2>Contact</h2>
+  <div class="card">
+    <p class="muted">For private portfolio questions or to request more information, contact Amanda or Larry directly.</p>
+    <p><strong>Email:</strong> <span class="muted">clarkamanda183@gmail.com</span></p>
+    <p class="small muted">Do not publish private wallet seed phrases, passwords, private keys, banking credentials, or other sensitive information on this website.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+<div class="container">
+  <div>© 2026 Amanda & Larry Bitcoin Portfolio</div>
+  <div class="small">Private portfolio information • Not a guarantee of investment performance • Update all sample fields before publishing.</div>
+</div>
+</footer>
+
+<script>
+(function(){
+  const STORAGE_KEY = "amandaLarryBitcoinTransactions";
+  const initialTransactions = [{date:"2026-09-09",type:"purchase",btc:0.013,amount:1000,notes:"Amanda Clark — first purchase"}];
+  let transactions;
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    transactions = Array.isArray(saved) ? saved : initialTransactions.slice();
+  } catch(e) { transactions = initialTransactions.slice(); }
+
+  let btcPrice = null;
+  const $ = id => document.getElementById(id);
+  const money = n => new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n || 0);
+  const btcFmt = n => (Number(n)||0).toFixed(8) + " BTC";
+  function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(transactions)); }
+  function esc(v){ return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c])); }
+
+  function render(){
+    const body=$("transactionBody"); body.innerHTML="";
+    transactions.forEach((tx,i)=>{
+      const tr=document.createElement("tr");
+      const b=(tx.type==="sale"?-1:1)*Number(tx.btc);
+      const a=(tx.type==="sale"?-1:1)*Number(tx.amount);
+      tr.innerHTML=`<td>${esc(tx.date)}</td><td>${tx.type==="sale"?"Bitcoin sale":"Bitcoin purchase"}</td><td>${btcFmt(b)}</td><td>${money(a)}</td><td>${esc(tx.notes||"")}</td><td><button class="delete-btn" data-index="${i}" type="button">Delete</button></td>`;
+      body.appendChild(tr);
+    });
+
+    const contributed=transactions.reduce((s,t)=>s+(t.type==="sale"?-Number(t.amount):Number(t.amount)),0);
+    const held=transactions.reduce((s,t)=>s+(t.type==="sale"?-Number(t.btc):Number(t.btc)),0);
+    const value=btcPrice===null?null:held*btcPrice;
+    const perf=value===null?null:value-contributed;
+    const pct=(value!==null&&contributed!==0)?perf/contributed*100:null;
+
+    $("totalContributed").textContent=money(contributed);
+    $("btcHeld").textContent=btcFmt(held);
+    $("btcPrice").textContent=btcPrice===null?"Loading…":money(btcPrice);
+    $("portfolioValue").textContent=value===null?"Loading…":money(value);
+    $("netPerformance").textContent=perf===null?"—":(perf>=0?"+":"")+money(perf);
+    $("returnPct").textContent=pct===null?"—":(pct>=0?"+":"")+pct.toFixed(2)+"%";
+    $("netPerformance").className="value "+(perf!==null&&perf>=0?"good":"");
+    $("returnPct").className="value "+(pct!==null&&pct>=0?"good":"");
+  }
+
+  async function fetchPrice(){
+    $("priceStatus").textContent="Getting the latest BTC price…";
+    try{
+      const r=await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",{cache:"no-store"});
+      if(!r.ok) throw new Error();
+      const d=await r.json(); btcPrice=Number(d.bitcoin.usd);
+      $("priceStatus").textContent="BTC price updated just now.";
+      $("priceStatus").className="small status-good"; render();
+    }catch(e){
+      $("priceStatus").textContent="Live BTC price could not be loaded. Tap Refresh BTC price to try again.";
+      $("priceStatus").className="small"; render();
+    }
+  }
+
+  $("addTx").addEventListener("click",()=>{
+    const date=$("txDate").value,type=$("txType").value,btc=Number($("txBtc").value),amount=Number($("txAmount").value),notes=$("txNotes").value.trim();
+    if(!date||btc<=0||amount<0){$("priceStatus").textContent="Please enter a date and BTC amount. Dollar amount can be 0.";return;}
+    transactions.push({date,type,btc,amount,notes}); transactions.sort((a,b)=>a.date.localeCompare(b.date));
+    save(); render(); $("txBtc").value=""; $("txAmount").value=""; $("txNotes").value="";
+    $("priceStatus").textContent="Transaction added and totals recalculated."; $("priceStatus").className="small status-good";
+  });
+  $("refreshPrice").addEventListener("click",fetchPrice);
+  $("transactionBody").addEventListener("click",e=>{
+    if(e.target.matches(".delete-btn")){
+      const i=Number(e.target.dataset.index);
+      if(confirm("Delete this transaction?")){transactions.splice(i,1);save();render();}
+    }
+  });
+  $("txDate").value=new Date().toISOString().slice(0,10);
+  render(); fetchPrice();
+})();
+</script>
+
+</body>
+</html>
